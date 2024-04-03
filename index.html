@@ -1,0 +1,1170 @@
+
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="description" content="MagicMirror: Fast and High-Quality Avatar Generation with a Constrained Search Space" />
+    <meta name="keywords" content="Avatar, Generative AI, NeRF, Reconstruction, Text to Image, Text to 3D, Diffusion Model, Text Control" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MagicMirror: Fast and High-Quality Avatar Generation with a Constrained Search Space</title>
+
+    <link
+      href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="./static/css/bulma.min.css" />
+    <link rel="stylesheet" href="./static/css/bulma-carousel.min.css" />
+    <link rel="stylesheet" href="./static/css/bulma-slider.min.css" />
+    <link rel="stylesheet" href="./static/css/fontawesome.all.min.css" />
+    <link rel="stylesheet" href="./static/css/academicons.min.css" />
+    <link rel="stylesheet" href="./static/css/index.css" />
+    <link rel="icon" href="./static/images/favicon.svg" />
+
+    <script src="./static/js/jquery.min.js"></script>
+    <script defer src="./static/js/fontawesome.all.min.js"></script>
+    <script src="./static/js/bulma-carousel.min.js"></script>
+    <script src="./static/js/bulma-slider.min.js"></script>
+    <script src="./static/js/index.js"></script>
+  </head>
+
+  <style>
+    .rotate_image {
+      -webkit-transform: rotate(270deg);
+      -moz-transform: rotate(270deg);
+      -ms-transform: rotate(270deg);
+      -o-transform: rotate(270deg);
+      transform: rotate(270deg);
+      margin: 100px 0 50px 0;
+    }
+    .rotate_image90 {
+      -webkit-transform: rotate(90deg);
+      -moz-transform: rotate(90deg);
+      -ms-transform: rotate(90deg);
+      -o-transform: rotate(90deg);
+      transform: rotate(90deg);
+      margin: 100px 0 50px 0;
+    }
+  </style>
+
+  <body>
+    <section class="hero">
+      <div class="hero-body">
+        <div class="container is-max-desktop">
+          <div class="columns is-centered">
+            <div class="column has-text-centered">
+              <h1 class="title is-1 publication-title">MagicMirror: Fast and High-Quality Avatar Generation with a Constrained Search Space</h1>
+
+              <div class="is-size-5">
+                <div class="is-size-5 publication-authors">
+                  <span class="author-block"
+                    ><a href="https://scholar.google.com/citations?user=-I-Q7XsAAAAJ&hl=en" target="_blank">Armand Comas</a
+                    ><sup>1,2</sup>,</span
+                  >
+                  <span class="author-block"
+                    ><a href="https://sylqiu.github.io/" target="_blank">Di Qiu</a
+                    ><sup>1</sup>,</span
+                  >
+                  <span class="author-block"
+                    ><a href="https://mlchai.com/" target="_blank">Menglei Chai</a
+                    ><sup>1</sup>,</span
+                  >
+                  <span class="author-block"
+                    ><a href="https://ait.ethz.ch/people/buehler" target="_blank">Marcel Buehler</a
+                    ><sup>1,3</sup>,</span
+                  >
+                  <span class="author-block"
+                    ><a href="https://amitraj93.github.io/" target="_blank">Amit Raj</a
+                    ><sup>1</sup>,</span
+                  >
+                  <span class="author-block"
+                    ><a href="https://ruiqigao.github.io/" target="_blank">Ruiqi Gao</a
+                    ><sup>4</sup>,</span
+                  >
+                  <span class="author-block"
+                    ><a href="https://xharlie.github.io/" target="_blank">Qiangeng Xu</a
+                    ><sup>1</sup>,</span
+                  >
+                  <span class="author-block"
+                    ><a href="https://www.markjmatthews.com/" target="_blank">Mark Matthews</a
+                    ><sup>1</sup>,</span
+                  >
+                  <span class="author-block"
+                    ><a href="https://www.paulogotardo.com/" target="_blank">Paulo Gotardo</a
+                    ><sup>1</sup>,</span
+                  >
+                  <span class="author-block"
+                    ><a href="http://www.dccia.ua.es/~sorts" target="_blank">Sergio Orts-Escolano</a
+                    ><sup>1</sup>,</span
+                  >
+                  <span class="author-block"
+                    ><a href="https://thabobeeler.com/" target="_blank">Thabo Beeler</a
+                    ><sup>1</sup>,</span
+                  >
+                  <div class="is-size-5 publication-authors">
+                    <span class="author-block"><sup>1</sup>Google,</span>
+                    <span class="author-block"><sup>2</sup>Northeastern Univeristy,</span>
+                    <span class="author-block"><sup>3</sup>ETH Zurich,</span>
+                    <span class="author-block"><sup>4</sup>Google DeepMind</span>
+                  </div>
+
+				  <br />
+
+                  <div class="publication-links">
+                    <!-- PDF Link. -->
+                    <span class="link-block">
+                      <a
+                        href="https://arxiv.org/pdf/2404.01296.pdf"
+                        target="_blank"
+                        class="external-link button is-normal is-rounded is-dark"
+                      >
+                        <span class="icon">
+                          <svg
+                            class="svg-inline--fa fa-file-pdf fa-w-12"
+                            aria-hidden="true"
+                            focusable="false"
+                            data-prefix="fas"
+                            data-icon="file-pdf"
+                            role="img"
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 384 512"
+                            data-fa-i2svg=""
+                          >
+                            <path
+                              fill="currentColor"
+                              d="M181.9 256.1c-5-16-4.9-46.9-2-46.9 8.4 0 7.6 36.9 2 46.9zm-1.7 47.2c-7.7 20.2-17.3 43.3-28.4 62.7 18.3-7 39-17.2 62.9-21.9-12.7-9.6-24.9-23.4-34.5-40.8zM86.1 428.1c0 .8 13.2-5.4 34.9-40.2-6.7 6.3-29.1 24.5-34.9 40.2zM248 160h136v328c0 13.3-10.7 24-24 24H24c-13.3 0-24-10.7-24-24V24C0 10.7 10.7 0 24 0h200v136c0 13.2 10.8 24 24 24zm-8 171.8c-20-12.2-33.3-29-42.7-53.8 4.5-18.5 11.6-46.6 6.2-64.2-4.7-29.4-42.4-26.5-47.8-6.8-5 18.3-.4 44.1 8.1 77-11.6 27.6-28.7 64.6-40.8 85.8-.1 0-.1.1-.2.1-27.1 13.9-73.6 44.5-54.5 68 5.6 6.9 16 10 21.5 10 17.9 0 35.7-18 61.1-61.8 25.8-8.5 54.1-19.1 79-23.2 21.7 11.8 47.1 19.5 64 19.5 29.2 0 31.2-32 19.7-43.4-13.9-13.6-54.3-9.7-73.6-7.2zM377 105L279 7c-4.5-4.5-10.6-7-17-7h-6v128h128v-6.1c0-6.3-2.5-12.4-7-16.9zm-74.1 255.3c4.1-2.7-2.5-11.9-42.8-9 37.1 15.8 42.8 9 42.8 9z"
+                            ></path>
+                          </svg>
+                        </span>
+                        <span>Paper</span>
+                      </a>
+                    </span>
+                    <span class="link-block">
+                      <a
+                        href="https://arxiv.org/abs/2404.01296"
+                        target="_blank"
+                        class="external-link button is-normal is-rounded is-dark"
+                      >
+                        <span class="icon">
+                          <svg
+                            class="svg-inline--fa fa-file-pdf fa-w-12"
+                            aria-hidden="true"
+                            focusable="false"
+                            data-prefix="fas"
+                            data-icon="file-pdf"
+                            role="img"
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 384 512"
+                            data-fa-i2svg=""
+                          >
+                            <path
+                              fill="currentColor"
+                              d="M181.9 256.1c-5-16-4.9-46.9-2-46.9 8.4 0 7.6 36.9 2 46.9zm-1.7 47.2c-7.7 20.2-17.3 43.3-28.4 62.7 18.3-7 39-17.2 62.9-21.9-12.7-9.6-24.9-23.4-34.5-40.8zM86.1 428.1c0 .8 13.2-5.4 34.9-40.2-6.7 6.3-29.1 24.5-34.9 40.2zM248 160h136v328c0 13.3-10.7 24-24 24H24c-13.3 0-24-10.7-24-24V24C0 10.7 10.7 0 24 0h200v136c0 13.2 10.8 24 24 24zm-8 171.8c-20-12.2-33.3-29-42.7-53.8 4.5-18.5 11.6-46.6 6.2-64.2-4.7-29.4-42.4-26.5-47.8-6.8-5 18.3-.4 44.1 8.1 77-11.6 27.6-28.7 64.6-40.8 85.8-.1 0-.1.1-.2.1-27.1 13.9-73.6 44.5-54.5 68 5.6 6.9 16 10 21.5 10 17.9 0 35.7-18 61.1-61.8 25.8-8.5 54.1-19.1 79-23.2 21.7 11.8 47.1 19.5 64 19.5 29.2 0 31.2-32 19.7-43.4-13.9-13.6-54.3-9.7-73.6-7.2zM377 105L279 7c-4.5-4.5-10.6-7-17-7h-6v128h128v-6.1c0-6.3-2.5-12.4-7-16.9zm-74.1 255.3c4.1-2.7-2.5-11.9-42.8-9 37.1 15.8 42.8 9 42.8 9z"
+                            ></path>
+                          </svg>
+                        </span>
+                        <span>ArXiv</span>
+                      </a>
+                    </span>
+                  </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Abstract -->
+    <section class="section">
+      <div class="container is-max-desktop">
+        <!-- Optional Teaser Figure. -->
+        <div class="columns is-centered has-text-centered">
+          <div class="column is-four-fifths">
+            <img src="./assets/teaser.png" style="height: 100%" />
+          </div>
+        </div>
+        <div class="columns is-centered has-text-centered">
+          <div class="column is-four-fifths">
+            <h2 class="title is-3">Abstract</h2>
+            <div class="content has-text-justified">
+              We introduce a novel framework for 3D human avatar generation and personalization,
+              leveraging text prompts to enhance user engagement and customization.
+              Central to our approach are key innovations aimed at overcoming the challenges in photo-realistic avatar synthesis.
+              Firstly, we utilize a conditional Neural Radiance Fields (NeRF) model, trained on a large-scale unannotated multi-view dataset,
+              to create a versatile initial solution space that accelerates and diversifies avatar generation.
+              Secondly, we develop a geometric prior, leveraging the capabilities of Text-to-Image Diffusion Models,
+              to ensure superior view invariance and enable direct optimization of avatar geometry.
+              These foundational ideas are complemented by our optimization pipeline built on Variational Score Distillation (VSD),
+              which mitigates texture loss and over-saturation issues. As supported by our extensive experiments,
+              these strategies collectively enable the creation of custom avatars with unparalleled visual quality and better adherence to input text prompts.
+            </div>
+          </div>
+        </div>
+        <!--/ Abstract. -->
+      </div>
+    </section>
+
+    <br /><br /><br />
+    <hr style="width: 30%; margin: auto" />
+
+    <section class="section">
+      <div class="container is-max-desktop">
+        <div class="column is-centered has-text-centered">
+          <div class="content">
+            <h2 class="title is-3 has-text-centered">Non-personalized Avatar Generation</h2>
+            <div class="content has-text-justified">
+              <p>MagicMirror can generate widely-know real and fictional characters with high quality, realism and alignment to the text prompt.</p>
+              <p>From left to right we show the final rendering, geometric normals, depths and transparency maps.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="column is-centered has-text-centered">
+        <div class="columns" style="width: 98%; margin: auto" >
+            <div class="column">
+                <div class="container">
+                    <div class="content">
+                        <h3 class="has-text-centered">Barack Obama</h3>
+                    </div>
+                    <div class="item">
+                    <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                        <source src="./assets/who-is-Barack-Obama__CG2_CGLo1_LR0.0001_LRLo3.5e-05_540iter_viz.mp4" type="video/mp4" />
+                    </video>
+                    </div>
+                </div>
+            </div>
+            <div class="column">
+                <div class="container">
+                    <div class="content">
+                        <h3 class="has-text-centered">Frida Kahlo</h3>
+                    </div>
+                    <div class="item">
+                    <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                        <source src="./assets/who-is-Frida-Kahlo_portrait-of-a-woman_CG3_CGLo1_LR0.0001_LRLo0.0002_viz.mp4" type="video/mp4" />
+                    </video>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="columns" style="width: 98%; margin: auto">
+            <div class="column">
+                <div class="container">
+                    <div class="content">
+                        <h3 class="has-text-centered">Michael Jackson</h3>
+                    </div>
+                    <div class="item">
+                    <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                        <source src="./assets/who-is-Michael-Jackson_portrait-of-a-man_CG3_CGLo1_LR0.0001_LRLo0.0002_2_viz.mp4" type="video/mp4" />
+                    </video>
+                    </div>
+                </div>
+            </div>
+            <div class="column">
+                <div class="container">
+                    <div class="content">
+                        <h3 class="has-text-centered">Leo Messi</h3>
+                    </div>
+                    <div class="item">
+                    <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                        <source src="./assets/who-is-Leo-Messi__CG3_CGLo1_LR0.0002_LRLo0.0003_1kiter_viz.mp4" type="video/mp4" />
+                    </video>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="columns" style="width: 98%; margin: auto">
+            <div class="column">
+                <div class="container">
+                    <div class="content">
+                        <h3 class="has-text-centered">Christiano Ronaldo</h3>
+                    </div>
+                    <div class="item">
+                    <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                        <source src="./assets/who-is-Christiano-Ronaldo_portrait-of-a-man_CG3_CGLo1_LR0.0001_LRLo0.0002_viz.mp4" type="video/mp4" />
+                    </video>
+                    </div>
+                </div>
+            </div>
+            <div class="column">
+                <div class="container">
+                    <div class="content">
+                        <h3 class="has-text-centered">Hillary Clinton</h3>
+                    </div>
+                    <div class="item">
+                    <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                        <source src="./assets/who-is-Hillary-Clinton_portrait-of-a-woman_CG3_CGLo1_LR0.0001_LRLo0.0004_with_t_annealing_viz.mp4" type="video/mp4" />
+                    </video>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="columns" style="width: 98%; margin: auto">
+            <div class="column">
+                <div class="container">
+                    <div class="content">
+                        <h3 class="has-text-centered">Morgan Freeman</h3>
+                    </div>
+                    <div class="item">
+                    <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                        <source src="./assets/who-is-Morgan-Freeman_portrait-of-a-man_CG4_CGLo1_LR0.0003_LRLo0.001_400iters_viz.mp4" type="video/mp4" />
+                    </video>
+                    </div>
+                </div>
+            </div>
+            <div class="column">
+                <div class="container">
+                    <div class="content">
+                        <h3 class="has-text-centered">Tom Hanks</h3>
+                    </div>
+                    <div class="item">
+                    <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                        <source src="./assets/who-is-Tom-Hanks_portrait-of-a-man_CG5_CGLo1_LR0.0002_LRLo0.0004_2_viz.mp4" type="video/mp4" />
+                    </video>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="columns" style="width: 98%; margin: auto">
+            <div class="column">
+                <div class="container">
+                    <div class="content">
+                        <h3 class="has-text-centered">Oprah Winfrey</h3>
+                    </div>
+                    <div class="item">
+                    <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                        <source src="./assets/who-is-Oprah-Winfrey_portrait-of-a-woman_CG3_CGLo1_LR0.0001_LRLo0.0003_800_viz.mp4" type="video/mp4" />
+                    </video>
+                    </div>
+                </div>
+            </div>
+            <div class="column">
+                <div class="container">
+                    <div class="content">
+                        <h3 class="has-text-centered">Will Smith</h3>
+                    </div>
+                    <div class="item">
+                    <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                        <source src="./assets/who-is-Will-Smith_portrait-of-a-man_CG15_CGLo1_LR0.0001_LRLo0.0002_1400iter_viz.mp4" type="video/mp4" />
+                    </video>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="columns" style="width: 98%; margin: auto">
+            <div class="column">
+                <div class="container">
+                    <div class="content">
+                        <h3 class="has-text-centered">Donald Trump</h3>
+                    </div>
+                    <div class="item">
+                    <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                        <source src="./assets/who-is-Donald-Trump__CG3_CGLo1_LR0.0002_LRLo0.0003_380iter_viz.mp4" type="video/mp4" />
+                    </video>
+                    </div>
+                </div>
+            </div>
+            <div class="column">
+                <div class="container">
+                    <div class="content">
+                        <h3 class="has-text-centered">Joe Biden</h3>
+                    </div>
+                    <div class="item">
+                    <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                        <source src="./assets/who-is-Joe-Biden_portrait-of-a-man_CG3_CGLo1_LR0.0001_LRLo0.0003_1400iters_2_viz.mp4" type="video/mp4" />
+                    </video>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="columns" style="width: 98%; margin: auto">
+            <div class="column">
+                <div class="container">
+                    <div class="content">
+                        <h3 class="has-text-centered">Albert Einstein</h3>
+                    </div>
+                    <div class="item">
+                    <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                        <source src="./assets/who-is-Albert-Einstein_portrait-of-a-man_CG3_CGLo1_LR0.0001_LRLo0.0002_740iter_viz.mp4" type="video/mp4" />
+                    </video>
+                    </div>
+                </div>
+            </div>
+            <div class="column" style="width: 98%; margin: auto">
+                <div class="container">
+                    <div class="content">
+                        <h3 class="has-text-centered">Nikola Tesla</h3>
+                    </div>
+                    <div class="item">
+                    <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                        <source src="./assets/who-is-Nikola-Tesla_portrait-of-a-man_CG3_CGLo1_LR0.0001_LRLo0.0002_760_viz.mp4" type="video/mp4" />
+                    </video>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="columns" style="width: 98%; margin: auto">
+            <div class="column">
+                <div class="container">
+                    <div class="content">
+                        <h3 class="has-text-centered">Daenerys Targaryen</h3>
+                    </div>
+                    <div class="item">
+                    <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                        <source src="./assets/who-is-Daenerys-Targaryen_portrait-of-a-woman_CG3_CGLo1_LR0.0001_LRLo0.0002_viz.mp4" type="video/mp4" />
+                    </video>
+                    </div>
+                </div>
+            </div>
+            <div class="column">
+                <div class="container">
+                    <div class="content">
+                        <h3 class="has-text-centered">Margot Robbie</h3>
+                    </div>
+                    <div class="item">
+                    <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                        <source src="./assets/who-is-Margot-Robbie_portrait-of-a-woman_CG3_CGLo1_LR0.0001_LRLo0.0002_520_viz.mp4" type="video/mp4" />
+                    </video>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr style="width: 30%; margin: auto" />
+
+    <section class="section">
+        <div class="container is-max-desktop">
+          <div class="column is-centered has-text-centered">
+            <div class="content">
+              <h2 class="title is-3 has-text-centered">Personalized Avatar Editing</h2>
+              <div class="content has-text-justified">
+                <p>MagicMirror can capture a subjects identity by means of a reconstructed avatar or else a selection of in-the-wild photos. Editing is carried on as a generation process, by recontextualizing the captured identity through text prompts.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+  
+      <div class="column is-centered has-text-centered">
+        <div class="content">
+            <h2 class="title is-3 has-text-centered">Subject 1</h2>
+            <!-- <div class="content has-text-justified">
+              <p>MagicMirror can generate widely-know real and fictional characters with high quality, realism and alignment to the text prompt.</p>
+            </div> -->
+          </div>
+          <div class="column">
+            <div class="container">
+                <div class="content">
+                    <h3 class="has-text-centered">Original Avatar</h3>
+                </div>
+                <div class="item">
+                <video poster="" id="" autoplay controls muted loop playsinline width="50%">
+                    <source src="./assets/Originals/subject1/video.mp4" type="video/mp4" />
+                </video>
+                </div>
+            </div>
+          </div>
+          <div class="columns" style="width: 98%; margin: auto">
+              <div class="column">
+                  <div class="container">
+                      <div class="content">
+                          <h3 class="has-text-centered">Expressions: Sad</h3>
+                      </div>
+                      <div class="item">
+                      <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                          <source src="./assets/who-is-sad__CG20_CGLo2_LR0.0003_LRLo0.0006_turban_woman_viz.mp4" type="video/mp4" />
+                      </video>
+                      </div>
+                  </div>
+              </div>
+              <div class="column" style="width: 98%; margin: auto">
+                  <div class="container">
+                      <div class="content">
+                          <h3 class="has-text-centered">Expressions: Happy</h3>
+                      </div>
+                      <div class="item">
+                      <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                          <source src="./assets/who-is-happy__CG15_CGLo2_LR0.0002_LRLo0.0004_turban_woman_viz.mp4" type="video/mp4" />
+                      </video>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <div class="columns" style="width: 98%; margin: auto">
+            <div class="column">
+                <div class="container">
+                    <div class="content">
+                        <h3 class="has-text-centered">Expressions: Angry</h3>
+                    </div>
+                    <div class="item">
+                    <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                        <source src="./assets/who-is-angry__CG20_CGLo2_LR0.0003_LRLo0.0006_turban_woman_viz.mp4" type="video/mp4" />
+                    </video>
+                    </div>
+                </div>
+            </div>
+            <div class="column" style="width: 98%; margin: auto">
+                <div class="container">
+                    <div class="content">
+                        <h3 class="has-text-centered">Expressions: Shocked</h3>
+                    </div>
+                    <div class="item">
+                    <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                        <source src="./assets/who-is-shocked__CG20_CGLo2_LR0.0002_LRLo0.0004_turban_woman_viz.mp4" type="video/mp4" />
+                    </video>
+                    </div>
+                </div>
+            </div>
+          </div>
+            <div class="columns" style="width: 98%; margin: auto">
+                <div class="column">
+                    <div class="container">
+                        <div class="content">
+                            <h3 class="has-text-centered">Accessories: Headphones</h3>
+                        </div>
+                        <div class="item">
+                        <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                            <source src="./assets/wearing-headphones__CG10_CGLo1_LR0.0002_LRLo0.0004_turban_woman_viz.mp4" type="video/mp4" />
+                        </video>
+                        </div>
+                    </div>
+                </div>
+                <div class="column">
+                    <div class="container">
+                        <div class="content">
+                            <h3 class="has-text-centered">Stylization: Old Person</h3>
+                        </div>
+                        <div class="item">
+                        <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                            <source src="./assets/who-is-an-old-person__CG10_CGLo1_LR0.0005_LRLo0.001_turban_woman_viz.mp4" type="video/mp4" />
+                        </video>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="columns" style="width: 98%; margin: auto">
+                <div class="column">
+                    <div class="container">
+                        <div class="content">
+                            <h3 class="has-text-centered">Stylization: Joker</h3>
+                        </div>
+                        <div class="item">
+                        <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                            <source src="./assets/The-Joker__CG30_CGLo1_LR0.0005_LRLo0.001_turban_woman_viz.mp4" type="video/mp4" />
+                        </video>
+                        </div>
+                    </div>
+                </div>
+                <div class="column">
+                    <div class="container">
+                        <div class="content">
+                            <h3 class="has-text-centered">Stylization: Marble Statue</h3>
+                        </div>
+                        <div class="item">
+                        <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                            <source src="./assets/who-is-a-marble-statue__CG10_CGLo1_LR0.0002_LRLo0.0004_turban_woman_viz.mp4" type="video/mp4" />
+                        </video>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+      <div class="column is-centered has-text-centered">
+        <div class="content">
+            <h2 class="title is-3 has-text-centered">Subject 2</h2>
+            <!-- <div class="content has-text-justified">
+              <p>MagicMirror can generate widely-know real and fictional characters with high quality, realism and alignment to the text prompt.</p>
+            </div> -->
+        </div>
+          <div class="column">
+            <div class="container">
+                <div class="content">
+                    <h3 class="has-text-centered">Original Avatar</h3>
+                </div>
+                <div class="item">
+                <video poster="" id="" autoplay controls muted loop playsinline width="50%">
+                    <source src="./assets/Originals/subject2/video.mp4" type="video/mp4" />
+                </video>
+                </div>
+            </div>
+          </div>
+          <div class="columns" style="width: 98%; margin: auto">
+              <div class="column">
+                  <div class="container">
+                      <div class="content">
+                          <h3 class="has-text-centered">Expressions: Sad</h3>
+                      </div>
+                      <div class="item">
+                      <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                          <source src="./assets/who-is-sad__CG15_CGLo1_LR0.0004_LRLo0.0008_gray_hair_man_viz.mp4" type="video/mp4" />
+                      </video>
+                      </div>
+                  </div>
+              </div>
+              <div class="column">
+                  <div class="container">
+                      <div class="content">
+                          <h3 class="has-text-centered">Expressions: Happy</h3>
+                      </div>
+                      <div class="item">
+                      <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                          <source src="./assets/who-is-happy__CG25_CGLo1_LR0.0002_LRLo0.0004_gray_hair_man_viz.mp4" type="video/mp4" />
+                      </video>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <div class="columns" style="width: 98%; margin: auto">
+            <div class="column">
+                <div class="container">
+                    <div class="content">
+                        <h3 class="has-text-centered">Accessories: Headphones</h3>
+                    </div>
+                    <div class="item">
+                    <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                        <source src="./assets/wearing-headphones__CG15_CGLo2_LR0.0002_LRLo0.0004_gray_hair_man_2_viz.mp4" type="video/mp4" />
+                    </video>
+                    </div>
+                </div>
+            </div>
+            <div class="column">
+                <div class="container">
+                    <div class="content">
+                        <h3 class="has-text-centered">Accessories: Mustache</h3>
+                    </div>
+                    <div class="item">
+                    <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                        <source src="./assets/with-a-mustache_portrait-of-a-man_CG15_CGLo2_LR0.0004_LRLo0.0008_gray_hair_man_2_viz.mp4" type="video/mp4" />
+                    </video>
+                    </div>
+                </div>
+            </div>
+          </div>
+            <div class="columns" style="width: 98%; margin: auto">
+                <div class="column">
+                    <div class="container">
+                        <div class="content">
+                            <h3 class="has-text-centered">Stylization: The Joker</h3>
+                        </div>
+                        <div class="item">
+                        <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                            <source src="./assets/The-Joker__CG30_CGLo1_LR0.002_LRLo0.004_gray_hair_man_viz.mp4" type="video/mp4" />
+                        </video>
+                        </div>
+                    </div>
+                </div>
+                <div class="column">
+                    <div class="container">
+                        <div class="content">
+                            <h3 class="has-text-centered">Stylization: Marble Statue</h3>
+                        </div>
+                        <div class="item">
+                        <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                            <source src="./assets/who-is-a-marble-statue__CG20_CGLo1_LR0.0005_LRLo0.001_gray_hair_man_viz.mp4" type="video/mp4" />
+                        </video>
+                        </div>
+                    </div>
+                </div>
+            </div>   
+        </div>
+      </div>
+      <div class="column is-centered has-text-centered">
+        <div class="content">
+            <h2 class="title is-3 has-text-centered">Subject 3</h2>
+            <!-- <div class="content has-text-justified">
+              <p>MagicMirror can generate widely-know real and fictional characters with high quality, realism and alignment to the text prompt.</p>
+            </div> -->
+          </div>
+          <div class="column">
+            <div class="container">
+                <div class="content">
+                    <h3 class="has-text-centered">Original Avatar</h3>
+                </div>
+                <div class="item">
+                <video poster="" id="" autoplay controls muted loop playsinline width="50%">
+                    <source src="./assets/Originals/subject4/video.mp4" type="video/mp4" />
+                </video>
+                </div>
+            </div>
+        </div>
+          <div class="columns" style="width: 98%; margin: auto">
+              <div class="column">
+                  <div class="container">
+                      <div class="content">
+                          <h3 class="has-text-centered">Expressions: Sad</h3>
+                      </div>
+                      <div class="item">
+                      <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                          <source src="./assets/who-is-sad__CG25_CGLo2_LR0.0004_LRLo0.0008_beardless_brown_hair_yellow_shirt_viz.mp4" type="video/mp4" />
+                      </video>
+                      </div>
+                  </div>
+              </div>
+              <div class="column">
+                  <div class="container">
+                      <div class="content">
+                          <h3 class="has-text-centered">Expressions: Angry</h3>
+                      </div>
+                      <div class="item">
+                      <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                          <source src="./assets/who-is-angry__CG15_CGLo2_LR0.0002_LRLo0.0004_beardless_brown_hair_yellow_shirt_2_viz.mp4" type="video/mp4" />
+                      </video>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <div class="columns" style="width: 98%; margin: auto">
+            <div class="column">
+                <div class="container">
+                    <div class="content">
+                        <h3 class="has-text-centered">Accessories: Headphones</h3>
+                    </div>
+                    <div class="item">
+                    <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                        <source src="./assets/wearing-headphones__CG15_CGLo2_LR0.0002_LRLo0.0004_beardless_brown_hair_yellow_shirt_viz.mp4" type="video/mp4" />
+                    </video>
+                    </div>
+                </div>
+            </div>
+            <div class="column">
+                <div class="container">
+                    <div class="content">
+                        <h3 class="has-text-centered">Accessories: Mustache</h3>
+                    </div>
+                    <div class="item">
+                    <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                        <source src="./assets/who-has-a-moustache_portrait-of-a-man_CG10_CGLo1_LR0.0001_LRLo0.0003_beardless_brown_hair_yellow_shirt_viz.mp4" type="video/mp4" />
+                    </video>
+                    </div>
+                </div>
+            </div>
+          </div>
+            <div class="columns" style="width: 98%; margin: auto">
+                <div class="column">
+                    <div class="container">
+                        <div class="content">
+                            <h3 class="has-text-centered">Stylization: The Joker</h3>
+                        </div>
+                        <div class="item">
+                        <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                            <source src="./assets/The-Joker__CG20_CGLo2_LR0.001_LRLo0.002_beardless_brown_hair_yellow_shirt_2_viz.mp4" type="video/mp4" />
+                        </video>
+                        </div>
+                    </div>
+                </div>
+                <div class="column">
+                    <div class="container">
+                        <div class="content">
+                            <h3 class="has-text-centered">Stylization: Old person</h3>
+                        </div>
+                        <div class="item">
+                        <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                            <source src="./assets/who-is-an-old-person__CG15_CGLo2_LR0.0002_LRLo0.0004_beardless_brown_hair_yellow_shirt_viz.mp4" type="video/mp4" />
+                        </video>
+                        </div>
+                    </div>
+                </div>
+            </div>   
+        </div>
+      </div>
+      <div class="column is-centered has-text-centered">
+        <div class="content">
+            <h2 class="title is-3 has-text-centered">AvatarStudio Subject 1</h2>
+          </div>
+          <div class="column">
+            <div class="container">
+                <div class="content">
+                    <h3 class="has-text-centered">Original Identity (30 Views, can have different expressions)</h3>
+                </div>
+                <div class="item">
+                <img poster="" id="" src="./avatarstudio_images/avs_1.png"  width="50%"/>
+                </div>
+            </div>
+        </div>
+          <div class="columns" style="width: 98%; margin: auto">
+              <div class="column">
+                  <div class="container">
+                      <div class="content">
+                          <h3 class="has-text-centered">Expressions: Sad</h3>
+                      </div>
+                      <div class="item">
+                      <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                          <source src="./assets/who-is-sad__CG15_CGLo2_LR0.0002_LRLo0.0004_beardless_AS_subject_1_viz.mp4" type="video/mp4" />
+                      </video>
+                      </div>
+                  </div>
+              </div>
+              <div class="column">
+                  <div class="container">
+                      <div class="content">
+                          <h3 class="has-text-centered">Expressions: Happy</h3>
+                      </div>
+                      <div class="item">
+                      <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                          <source src="./assets/who-is-happy__CG15_CGLo2_LR0.0002_LRLo0.0004_beardless_AS_subject_1_viz.mp4" type="video/mp4" />
+                      </video>
+                      </div>
+                  </div>
+              </div>
+          </div>
+        <div class="columns" style="width: 98%; margin: auto">
+        <div class="column">
+            <div class="container">
+                <div class="content">
+                    <h3 class="has-text-centered">Expression: Angry</h3>
+                </div>
+                <div class="item">
+                <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                    <source src="./assets/who-is-angry__CG15_CGLo2_LR0.0002_LRLo0.0004_beardless_AS_subject_1_viz.mp4" type="video/mp4" />
+                </video>
+                </div>
+            </div>
+        </div>
+            <div class="column">
+                <div class="container">
+                    <div class="content">
+                        <h3 class="has-text-centered">Stylization: the Grinch</h3>
+                    </div>
+                    <div class="item">
+                    <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                        <source src="./assets/who-is-the-Grinch__CG10_CGLo2_LR0.0005_LRLo0.001_beardless_AS_subject_1_viz.mp4" type="video/mp4" />
+                    </video>
+                    </div>
+                </div>
+          </div> 
+        </div>
+      </div>
+      <div class="column is-centered has-text-centered">
+        <div class="content">
+            <h2 class="title is-3 has-text-centered">AvatarStudio Subject 2</h2>
+          </div>
+          <div class="column">
+            <div class="container">
+              <div class="content">
+                  <h3 class="has-text-centered">Original Identity (30 Views, can have different expressions)</h3>
+              </div>
+              <div class="item">
+              <img poster="" id="" src="./avatarstudio_images/avs_2.png"  width="50%"/>
+              </div>
+          </div>
+        </div>
+          <div class="columns" style="width: 98%; margin: auto">
+              <div class="column">
+                  <div class="container">
+                      <div class="content">
+                          <h3 class="has-text-centered">Stylization: Blue Hair</h3>
+                      </div>
+                      <div class="item">
+                      <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                          <source src="./assets/who-has-blue-hair__CG10_CGLo1_LR0.0002_LRLo0.0004_subject_2_viz.mp4" type="video/mp4" />
+                      </video>
+                      </div>
+                  </div>
+              </div>
+              <div class="column">
+                  <div class="container">
+                      <div class="content">
+                          <h3 class="has-text-centered">Stylization: Old person</h3>
+                      </div>
+                      <div class="item">
+                      <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                          <source src="./assets/-who-is-an-old-man__CG10_CGLo1_LR0.0002_LRLo0.0004_subject_2_t-ann_viz.mp4" type="video/mp4" />
+                      </video>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <div class="columns" style="width: 98%; margin: auto">
+        <div class="column">
+            <div class="container">
+                <div class="content">
+                    <h3 class="has-text-centered">Stylization: Vincent Van Gogh</h3>
+                </div>
+                <div class="item">
+                <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                    <source src="./assets/who-is-VG__CG10_CGLo2_LR0.0005_LRLo0.001_AS_subject_2_3_viz.mp4" type="video/mp4" />
+                </video>
+                </div>
+            </div>
+        </div>
+        <div class="column">
+                <div class="container">
+                    <div class="content">
+                        <h3 class="has-text-centered">Stylization: the Grinch</h3>
+                    </div>
+                    <div class="item">
+                    <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                        <source src="./assets/-who-is-the-Grinch__CG10_CGLo1_LR0.0002_LRLo0.0004_subject_2_t-ann_viz.mp4" type="video/mp4" />
+                    </video>
+                    </div>
+                </div>
+        </div> 
+        </div>
+      </div>
+      <div class="column is-centered has-text-centered">
+        <div class="content">
+            <h2 class="title is-3 has-text-centered">AvatarStudio Subject 3</h2>
+          </div>
+          <div class="column">
+            <div class="container">
+              <div class="content">
+                  <h3 class="has-text-centered">Original Identity (30 Views, can have different expressions)</h3>
+              </div>
+              <div class="item">
+              <img poster="" id="" src="./avatarstudio_images/avs_3.png" width="50%"/>
+              </div>
+          </div>
+        </div>
+          <div class="columns" style="width: 98%; margin: auto">
+              <div class="column">
+                  <div class="container">
+                      <div class="content">
+                          <h3 class="has-text-centered">Stylization: Zombie</h3>
+                      </div>
+                      <div class="item">
+                      <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                          <source src="./assets/who-is-a-scary-zombie__CG10_CGLo2_LR0.0002_LRLo0.0004_subject_3_viz.mp4" type="video/mp4" />
+                      </video>
+                      </div>
+                  </div>
+              </div>
+              <div class="column">
+                  <div class="container">
+                      <div class="content">
+                          <h3 class="has-text-centered">Stylization: Old person</h3>
+                      </div>
+                      <div class="item">
+                      <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                          <source src="./assets/who-is-an-old-woman__CG10_CGLo2_LR0.0002_LRLo0.0004_subject_3_viz.mp4" type="video/mp4" />
+                      </video>
+                      </div>
+                  </div>
+              </div>
+          </div>
+        <div class="columns" style="width: 98%; margin: auto">
+        <div class="column">
+            <div class="container">
+                <div class="content">
+                    <h3 class="has-text-centered">Stylization: Bronze Statue</h3>
+                </div>
+                <div class="item">
+                <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                    <source src="./assets/who-is-a-bronze-statue__CG10_CGLo2_LR0.0002_LRLo0.0004_subject_3_3_viz.mp4" type="video/mp4" />
+                </video>
+                </div>
+            </div>
+        </div>
+        <div class="column">
+                <div class="container">
+                    <div class="content">
+                        <h3 class="has-text-centered">Stylization: the Joker</h3>
+                    </div>
+                    <div class="item">
+                    <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+                        <source src="./assets/who-is-the-Joker__CG10_CGLo1_LR0.0002_LRLo0.0004_beardless_AS_subject_3_viz.mp4" type="video/mp4" />
+                    </video>
+                    </div>
+                </div>
+        </div> 
+        </div>
+      </div>
+
+
+    <hr style="width: 30%; margin: auto" />
+
+
+    <section class="section">
+      <div class="container is-max-desktop">
+        <div class="column is-centered has-text-centered">
+          <div class="content">
+            <h2 class="title is-3 has-text-centered">More results</h2>
+            <!-- <div class="content has-text-justified">
+              <p>TODO: Fill template</p>
+            </div> -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+  <div class="column is-centered has-text-centered">
+    <div class="container">
+      <div class="content">
+        <h3 class="has-text-centered">Optimization trajectory: from sad to happy</h3>
+      </div>
+    
+      <div class="item">
+        <video poster="" id="" autoplay controls muted loop playsinline width="50%">
+          <source src="./assets/evolution.mp4" type="video/mp4" />
+        </video>
+      </div>
+    </div>
+  
+  <div class="columns" style="width: 98%; margin: auto">
+    <div class="column">
+      <div class="container">
+        <div class="content">
+          <h3 class="has-text-centered">Alternative Joker</h3>
+        </div>
+        <div class="item">
+          <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+            <source src="./assets/portrait-of-a-man-who-is-The-Joker_green-color_CG10_CGLo2_LR0.0002_LRLo0.0004_gray_hair_man_viz.mp4" type="video/mp4" />
+          </video>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="column">
+      <div class="container">
+        <div class="content">
+          <h3 class="has-text-centered">Joker without Green</h3>
+        </div>
+        <div class="item">
+          <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+            <source src="./assets/portrait-of-a-man-who-is-The-Joker_green-color_CG10_CGLo2_LR0.0002_LRLo0.0004_gray_hair_man_noGreen_noSaturation_viz.mp4" type="video/mp4" />
+          </video>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="columns" style="width: 98%; margin: auto">
+      <div class="column">
+    <div class="container">
+      <div class="content">
+        <h3 class="has-text-centered">Alternative Grinch</h3>
+      </div>
+    <div class="item">
+      <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+        <source src="./assets/the-Grinch__CG10_CGLo2_LR0.001_LRLo0.002_viz.mp4" type="video/mp4" />
+      </video>
+    </div></div></div>
+
+
+    <div class="column">
+    <div class="container">
+      <div class="content">
+        <h3 class="has-text-centered">Alternative Van Gogh Look Alike</h3>
+      </div>
+    <div class="item">
+      <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+        <source src="./assets/Vincent-Van-Gogh__CG10_CGLo2_LR0.0002_LRLo0.0004_AS_subject_2_2_viz.mp4" type="video/mp4" />
+      </video>
+    </div></div></div></div>
+
+
+
+    <div class="columns" style="width: 98%; margin: auto">
+      <div class="column">
+        <div class="container">
+          <div class="content">
+            <h3 class="has-text-centered">Subject 1 Wear Glasses</h3>
+          </div>
+          <div class="item">
+            <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+              <source src="./assets/wearing-glasses__CG15_CGLo1_LR0.0005_LRLo0.001_gray_hair_man_viz.mp4" type="video/mp4" />
+            </video>
+          </div>
+        </div>
+      </div>
+
+
+
+    <div class="column">
+    <div class="container">
+      <div class="content">
+        <h3 class="has-text-centered">Subject 1 Child Version</h3>
+      </div>
+    <div class="item">
+      <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+        <source src="./assets/who-is-a-child__CG20_CGLo1_LR0.0002_LRLo0.0004_gray_hair_man_viz.mp4" type="video/mp4" />
+      </video>
+    </div></div></div></div>
+
+
+    <div class="columns" style="width: 98%; margin: auto">
+      <div class="column">
+    <div class="container">
+      <div class="content">
+        <h3 class="has-text-centered">Subject 3 Child Version</h3>
+      </div>
+    <div class="item">
+      <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+        <source src="./assets/who-is-a-child__CG10_CGLo1_LR0.001_LRLo0.002_beardless_brown_hair_yellow_shirt_viz.mp4" type="video/mp4" />
+      </video>
+    </div></div></div>
+
+
+    <div class="column">
+    <div class="container">
+      <div class="content">
+        <h3 class="has-text-centered">Subject 3 Marble Statue</h3>
+      </div>
+    <div class="item">
+      <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+        <source src="./assets/who-is-a-statue-made-of-marble__CG30_CGLo2_LR0.001_LRLo0.002_beardless_brown_hair_yellow_shirt_2_viz.mp4" type="video/mp4" />
+      </video>
+    </div></div></div></div>
+
+
+
+    <div class="columns" style="width: 98%; margin: auto">
+      <div class="column">
+        <div class="container">
+          <div class="content">
+            <h3 class="has-text-centered">Cruela Custume</h3>
+          </div>
+        <div class="item">
+          <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+            <source src="./assets/wearing-a-Cruela-de-Vil-costume__CG10_CGLo1_LR0.0002_LRLo0.0004_turban_woman_viz.mp4" type="video/mp4" />
+          </video>
+        </div></div></div>
+
+      <div class="column">
+        <div class="container">
+          <div class="content">
+            <h3 class="has-text-centered">Alternative Hillary</h3>
+          </div>
+        <div class="item">
+          <video poster="" id="" autoplay controls muted loop playsinline height="100%">
+            <source src="./assets/who-is-the-old-hillary-clinton__CG3_CGLo1_LR0.0001_LRLo3.5e-05_viz.mp4" type="video/mp4" />
+          </video>
+          </div>
+      </div></div>
+    </div>
+  </div>
+
+
+    <br /><br /><br />
+    <hr style="width: 30%; margin: auto" />
+
+    <footer class="footer">
+      <div class="container">
+        <div class="columns is-centered">
+          <div class="column is-8">
+            <div class="content">
+              <p>
+                This website is licensed under a
+                <a
+                  rel="license"
+                  href="http://creativecommons.org/licenses/by-sa/4.0/"
+                  >Creative Commons Attribution-ShareAlike 4.0 International License</a
+                >.
+              </p>
+              <p>
+                We thank <a href="https://github.com/nerfies/nerfies.github.io">NeRFies</a> for
+                providing the website template.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script></script>
+  </body>
+</html>
